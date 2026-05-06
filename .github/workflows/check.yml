@@ -1,4 +1,4 @@
-name: Steam Deck Availability Check
+name: Steam Products Availability Check
 
 on:
   schedule:
@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Check Steam Deck availability
+      - name: Check Steam products availability
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}

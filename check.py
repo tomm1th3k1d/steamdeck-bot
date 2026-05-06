@@ -15,7 +15,26 @@ BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHAT_ID   = os.environ["TELEGRAM_CHAT_ID"]
 # ─────────────────────────────────────────────────────────────────
 
-STEAM_DECK_URL = "https://store.steampowered.com/steamdeck"
+PRODUCTS = [
+    {
+        "name": "Steam Deck",
+        "url": "https://store.steampowered.com/steamdeck",
+        "msg": (
+            "🎮 <b>Steam Deck è tornata disponibile!</b>\n\n"
+            "🕐 Rilevato il: {time} UTC\n\n"
+            "👉 <a href=\"{url}\">Acquista subito su Steam</a>"
+        )
+    },
+    {
+        "name": "Steam Controller",
+        "url": "https://store.steampowered.com/hardware/steamcontroller",
+        "msg": (
+            "🕹️ <b>Steam Controller è tornato disponibile!</b>\n\n"
+            "🕐 Rilevato il: {time} UTC\n\n"
+            "👉 <a href=\"{url}\">Acquista subito su Steam</a>"
+        )
+    }
+]
 
 HEADERS = {
     "User-Agent": (
@@ -43,34 +62,44 @@ def send_telegram(message: str):
 
 
 def check():
-    print(f"🔍 Controllo in corso — {datetime.utcnow().strftime('%d/%m/%Y %H:%M')} UTC")
+    for prod in PRODUCTS:
+        name = prod["name"]
+        url = prod["url"]
+        
+        print(f"🔍 Controllo {name} in corso — {datetime.utcnow().strftime('%d/%m/%Y %H:%M')} UTC")
 
-    try:
-        resp = requests.get(STEAM_DECK_URL, headers=HEADERS, timeout=15)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"❌ Errore nel contattare Steam: {e}")
-        sys.exit(1)
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=15)
+            resp.raise_for_status()
+        except Exception as e:
+            print(f"❌ Errore nel contattare Steam per {name}: {e}")
+            sys.exit(1)
 
-    page = resp.text.lower()
+        page = resp.text.lower()
+        found = False
 
-    for kw in AVAILABLE_KEYWORDS:
-        if kw in page:
-            print(f"🟢 DISPONIBILE! Keyword trovata: '{kw}'")
-            now = datetime.utcnow().strftime("%d/%m/%Y %H:%M")
-            send_telegram(
-                f"🎮 <b>Steam Deck è tornata disponibile!</b>\n\n"
-                f"🕐 Rilevato il: {now} UTC\n\n"
-                f"👉 <a href=\"{STEAM_DECK_URL}\">Acquista subito su Steam</a>"
-            )
-            return
+        for kw in AVAILABLE_KEYWORDS:
+            if kw in page:
+                print(f"🟢 {name} DISPONIBILE! Keyword trovata: '{kw}'")
+                now = datetime.utcnow().strftime("%d/%m/%Y %H:%M")
+                send_telegram(prod["msg"].format(time=now, url=url))
+                found = True
+                break
 
-    for kw in UNAVAILABLE_KEYWORDS:
-        if kw in page:
-            print(f"🔴 Ancora esaurita. Keyword trovata: '{kw}'")
-            return
+        if found:
+            print("-" * 40)
+            continue
 
-    print("⚠️  Nessuna keyword trovata — controlla manualmente la pagina Steam.")
+        for kw in UNAVAILABLE_KEYWORDS:
+            if kw in page:
+                print(f"🔴 {name} ancora esaurito. Keyword trovata: '{kw}'")
+                found = True
+                break
+        
+        if not found:
+            print(f"⚠️  {name}: Nessuna keyword trovata — controlla manualmente la pagina Steam.")
+            
+        print("-" * 40)
 
 
 if __name__ == "__main__":
