@@ -47,7 +47,7 @@ HEADERS = {
 }
 
 # Parole chiave che indicano disponibilità
-AVAILABLE_KEYWORDS   = ["add to cart", "aggiungi al carrello", "buy now", "acquista ora"]
+AVAILABLE_KEYWORDS   = ["add to cart", "aggiungi al carrello"]
 UNAVAILABLE_KEYWORDS = ["out of stock", "esaurito", "sold out", "notify me", "avvisami"]
 
 
@@ -116,14 +116,15 @@ def check():
                 break
         
         if not found:
-            print(f"⚠️  {name}: Nessuna keyword trovata — la pagina potrebbe essere cambiata!")
-            now = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M")
-            send_telegram(
-                f"⚠️ <b>Attenzione! Anomalie per {name}</b>\n\n"
-                f"🕐 Rilevato il: {now} UTC\n\n"
-                f"Nessuna keyword (disponibile o esaurito) trovata. La pagina Steam potrebbe essere cambiata, controlla manualmente!\n\n"
-                f"👉 <a href=\"{url}\">Apri Steam</a>"
-            )
+            print(f"⚠️  {name}: Nessuna keyword trovata — la pagina potrebbe essere cambiata (oppure è una pagina React)!")
+            if name != "Steam Controller":
+                now = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M")
+                send_telegram(
+                    f"⚠️ <b>Attenzione! Anomalie per {name}</b>\n\n"
+                    f"🕐 Rilevato il: {now} UTC\n\n"
+                    f"Nessuna keyword (disponibile o esaurito) trovata. La pagina Steam potrebbe essere cambiata, controlla manualmente!\n\n"
+                    f"👉 <a href=\"{url}\">Apri Steam</a>"
+                )
             
         print("-" * 40)
 
