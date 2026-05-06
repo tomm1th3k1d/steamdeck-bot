@@ -117,14 +117,6 @@ def check():
         
         if not found:
             print(f"⚠️  {name}: Nessuna keyword trovata — la pagina potrebbe essere cambiata (oppure è una pagina React)!")
-            if name != "Steam Controller":
-                now = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M")
-                send_telegram(
-                    f"⚠️ <b>Attenzione! Anomalie per {name}</b>\n\n"
-                    f"🕐 Rilevato il: {now} UTC\n\n"
-                    f"Nessuna keyword (disponibile o esaurito) trovata. La pagina Steam potrebbe essere cambiata, controlla manualmente!\n\n"
-                    f"👉 <a href=\"{url}\">Apri Steam</a>"
-                )
             
         print("-" * 40)
 
